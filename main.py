@@ -1,64 +1,45 @@
 import traceback
-from doctest import UnexpectedException
 from typing import List
-
 from bullet import Bullet, colors, utils
 
-
 class PurchaseItem(object):
-    def __init__(self, option):
+    def _init_(self, option):
         self.price = option.p
         self.name = str(option)
 
-
-def get_total_order_amount(order: List[PurchaseItem]):
-
+def get_total_order_amount(order: List[PurchaseItem]) -> float:
     """
     The total cost of all the items ordered
     """
+    return sum(item.price for item in order)
 
-    raise NotImplementedError(
-        "REMOVE the error and RETURN the total amount for the order"
-    )
-
-
-def get_service_charge(order: List[PurchaseItem]):
-
+def get_service_charge(order: List[PurchaseItem]) -> float:
     """
-    For every Rs. 100, the service charge amount should increase by 1% of order amount, upto a max of 20%
-    Eg:
-        Order Amount = 80, Service Charge = 0
-        Order Amount = 150, Service Charge = 1.5
-        Order Amount = 800, Service Charge = 64
-        Order Amount = 1500, Service Charge = 225
-        Order Amount = 3000, Service Charge = 600
+    For every Rs. 100, the service charge amount should increase by 1% of order amount, up to a max of 20%
     """
-
-    raise NotImplementedError(
-        "REMOVE the error and RETURN service charge amount for the order"
-    )
-
+    total_amount = get_total_order_amount(order)
+    service_charge_percentage = min((total_amount // 100) * 0.01, 0.20)
+    return total_amount * service_charge_percentage
 
 class Option(object):
-    def __init__(self, n=None, pu=None, p=None, d=None):
+    def _init_(self, n=None, pu=None, p=None, d=None):
         self.p = p
         self.n = n
         self.pu = pu
         if d:
             self.n = d.get("name")
             self.p = d.get("price")
-        if self.p == None:
+        if self.p is None:
             self.p = 0
-        if self.n == None:
+        if self.n is None:
             raise AttributeError
         self.pu = self.pu if self.pu else "Rs."
 
-    def __str__(self):
+    def _str_(self):
         return f"{str(self.n)} {str(self.pu) + ' ' + str(self.p) if self.p else ''}"
 
-    def __len__(self):
-        return len(self.__str__())
-
+    def _len_(self):
+        return len(self._str_())
 
 MCDONALDS_FOOD_OPTIONS = [
     Option(d={"name": "Veg Burger", "price": 115.00}),
@@ -78,21 +59,17 @@ MCDONALDS_BEVERAGES_OPTIONS = [
     Option(d={"name": "No, that's all", "price": 0.00}),
 ]
 
-
 def get_option_from_result(result, options):
     for option in options:
         if str(option) == result:
             return option
-
-    raise UnexpectedException
-
+    raise Exception("Option not found")
 
 def print_order(order):
     print()
-
     try:
         total_amount = get_total_order_amount(order)
-    except:
+    except Exception:
         traceback.print_exc()
         total_amount = "ERROR"
 
@@ -100,7 +77,7 @@ def print_order(order):
     if total_amount != "ERROR":
         try:
             service_charge = get_service_charge(order)
-        except:
+        except Exception:
             traceback.print_exc()
             service_charge = "ERROR"
 
@@ -129,7 +106,6 @@ def print_order(order):
         color=colors.foreground["green"],
         on=colors.background["yellow"],
     )
-
 
 print()
 utils.cprint(
